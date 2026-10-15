@@ -9,6 +9,7 @@ nltk.download("words", quiet=True)
 class PasswordGenerator(ABC):
     @abstractmethod
     def generate(self):
+        """this class override this method to generate password."""
         pass
 
 
@@ -22,6 +23,10 @@ class PinGenerator(PasswordGenerator):
 
 
 class RandomPasswordGenerator(PasswordGenerator):
+    """
+    this class generate random password.
+    
+    """
     def __init__(self, length: int = 8, include_number: bool = False, include_symbols: bool = False):
         self.length = length
         self.character = string.ascii_letters
@@ -39,13 +44,17 @@ class MemorablePasswordGenerator(PasswordGenerator):
     def __init__(self, number_of_words: int = 4, separator: str = "-", caplitalization: bool = False, vocabulary: list = None):
         
         if vocabulary is None:
-            self.vocabulary = nltk.corpus.words.words()
+            self.vocabulary = nltk.corpus.words.words() # this code about vocabulary list you want
 
         self.number_of_words = number_of_words
         self.caplitalization = caplitalization
         self.separator = separator
         
     def generate(self):
+        """
+        generate password from list of vocabulary words(nltk).
+        """
+
         password_words = [random.choice(self.vocabulary) for _ in range(self.number_of_words)]
         if self.caplitalization:
             password_words = [word.upper() if random.choice([True, False]) else word.lower() for word in password_words]

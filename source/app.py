@@ -3,7 +3,6 @@ import string
 from abc import ABC, abstractmethod
 import nltk
 
-nltk.download("words", quiet=True)
 
 
 class PasswordGenerator(ABC):
@@ -14,7 +13,7 @@ class PasswordGenerator(ABC):
 
 
 class PinGenerator(PasswordGenerator):
-    def __init__(self, length: int):
+    def __init__(self, length: int= 5):
         self.length = length
 
     def generate(self) -> str:
@@ -41,10 +40,16 @@ class RandomPasswordGenerator(PasswordGenerator):
 
     
 class MemorablePasswordGenerator(PasswordGenerator):
-    def __init__(self, number_of_words: int = 4, separator: str = "-", caplitalization: bool = False, vocabulary: list = None):
+    def __init__(self, number_of_words: int = 5, separator: str = "-", caplitalization: bool = False, vocabulary: list = None):
         
         if vocabulary is None:
-            self.vocabulary = nltk.corpus.words.words() # this code about vocabulary list you want
+            try:
+                self.vocabulary = nltk.corpus.words.words() # this code about vocabulary list you want
+            except LookupError:
+                nltk.download("words", quiet=True)
+                self.vocabulary = nltk.corpus.words.words()
+        else:
+            self.vocabulary = vocabulary
 
         self.number_of_words = number_of_words
         self.caplitalization = caplitalization
@@ -62,8 +67,36 @@ class MemorablePasswordGenerator(PasswordGenerator):
         return self.separator.join(password_words)
 
 
+def pin_password_test():
+    pin = PinGenerator()
+    pin_pass = pin.generate()
+    print(pin_pass)
+    assert len(pin_pass) == 5
+
+
+def random_password_test():
+    rand = RandomPasswordGenerator(length=10, include_number=True, include_symbols=True)
+    random_pass = rand.generate()
+    print(random_pass)
+    assert len(random_pass) == 10
+
+
+
+def memorable_password_test():
+    memorable = MemorablePasswordGenerator(number_of_words=5, separator="-", caplitalization=True, vocabulary=nltk.corpus.words.words())
+    memorable_pass = memorable.generate()
+    print(memorable_pass)
+    assert len(memorable_pass.split("-")) == 5
+
+
+def main():
+    print("Testing PinGenerator:")
+    pin_password_test()
+    print("Testing RandomPassword:")
+    random_password_test()
+    print("Testing MemorablePassword:")
+    memorable_password_test()
+
+
 if __name__ == "__main__":
-    pass_w = RandomPasswordGenerator()
-    pass_m = MemorablePasswordGenerator()
-    print(pass_w.generate())
-    print(pass_m.generate())
+    main()
